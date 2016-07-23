@@ -110,12 +110,43 @@ class AlertController extends BaseController
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param  int  $id user id
      * @return \Illuminate\Http\Response
      */
     public function show($id)
     {
-        //
+        try {
+            // START VALIDATION
+            if (empty($id)) {
+                throw new Exception("Error Processing Request: User ID is required.");
+            }
+
+            // Check if user exists and active
+            if (! $this->user->exists(['id' => $id, 'active' => 1])) {
+                throw new Exception("Error Processing Request: Invalid User");
+            }
+            //  END VALIDATION
+
+            $alerts = $this->alert->getList([
+                'where' => [
+                    'and' => [
+                        ['field' => 'user_id', 'value' => $id]
+                    ]
+                ],
+                'order_by' => ['id' => 'desc']
+            ]);
+
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage()
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $alerts
+        ]);
     }
 
     /**
