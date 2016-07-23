@@ -22,7 +22,9 @@
             "App\\": "app/"
         },
         "files": [
-            "app/Helpers/ConversionHelper.php"
+            "app/Helpers/ConversionHelper.php",
+            "app/Classes/GlobeApi.php",
+            "app/Classes/GlobeSms.php"
         ]
     },
     "autoload-dev": {

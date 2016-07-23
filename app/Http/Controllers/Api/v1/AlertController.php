@@ -16,6 +16,8 @@ use App\Contracts\CategoryInterface as Category;
 use App\Contracts\RepetitionInterface as Repetition;
 use App\Contracts\AlertInterface as Alert;
 
+use App\Classes\GlobeApi;
+
 class AlertController extends BaseController
 {
     public function __construct(
@@ -37,7 +39,11 @@ class AlertController extends BaseController
      */
     public function index()
     {
-        echo 'hi';
+        $response = new GlobeApi();
+        $sms = $response->sms(5527);
+        $response = $sms->sendMessage('tMkc6GVDJN3-0KKDMDyWbbN9JpUg_ZtqLqWbRB8wDdM', '+63915609880', 'sample sample');
+
+        print_r($response);
     }
 
     /**
