@@ -6,7 +6,9 @@
     "type": "project",
     "require": {
         "php": ">=5.5.9",
-        "laravel/framework": "5.1.*"
+        "laravel/framework": "5.1.*",
+        "doctrine/dbal": "^2.5",
+        "nesbot/Carbon": "*"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",
@@ -24,7 +26,8 @@
         "files": [
             "app/Helpers/ConversionHelper.php",
             "app/Classes/GlobeApi.php",
-            "app/Classes/GlobeSms.php"
+            "app/Classes/GlobeSms.php",
+            "app/Classes/Cron.php"
         ]
     },
     "autoload-dev": {

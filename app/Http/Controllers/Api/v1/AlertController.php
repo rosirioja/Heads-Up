@@ -17,6 +17,7 @@ use App\Contracts\RepetitionInterface as Repetition;
 use App\Contracts\AlertInterface as Alert;
 
 use App\Classes\GlobeApi;
+use App\Classes\Cron;
 
 class AlertController extends BaseController
 {
@@ -41,6 +42,8 @@ class AlertController extends BaseController
      */
     public function index()
     {
+        $this->_validateCron();
+        exit;
         $response = new GlobeApi();
         $sms = $response->sms(5527);
         $response = $sms->sendMessage('tMkc6GVDJN3-0KKDMDyWbbN9JpUg_ZtqLqWbRB8wDdM', '+63915609880', 'sample sample');
@@ -106,8 +109,9 @@ class AlertController extends BaseController
                 throw new Exception("Error Processing Request: Cannot store alert");
             }
 
-            // Set Up New Cron
-            //$response = $this->_setNewCron($alert);
+            // Validate New Cron
+            $cron = new Cron();
+            $cron->validate($alert);
 
         } catch (Exception $e) {
             return response()->json([
@@ -167,6 +171,52 @@ class AlertController extends BaseController
         }
 
         return $scheduled_date;
+    }
+
+    /**
+     * Validate whether it needs to recreate cron
+     *
+     * @param array $alert data
+     * @return void
+     */
+    public function _validateCron($data = [])
+    {
+        try {
+            if (empty($data)) {
+                throw new Exception();
+            }
+
+            $alert_id = $data->id;
+            $scheduled_date = $data->scheduled_date;
+
+            //  get the latest scheduled
+            $args = [
+                'where' => [
+                    'and' => [
+                        ['field' => 'scheduled_date', 'operator' => '>=', 'value' => date('Y-m-d H:i')],
+                        ['field' => 'id', 'operator' => '!=', 'value' => $alert_id]
+                    ]
+                ],
+                'order_by' => ['scheduled_date' => 'asc'],
+                'limit' => 1
+            ];
+
+            $latest = $this->alert->getList($args);
+
+            /* Check if the latest is ahead/greater than the scheduled date
+             * if yes, set new cron
+             * else do nothing
+             */
+            if ($latest[0]->scheduled_date > $scheduled_date) {
+                $cron = new Cron();
+                $cron->setNewCron($scheduled_date);
+            }
+
+        } catch (Exception $e) {
+            return false;
+        }
+
+        return true;
     }
 
     /**

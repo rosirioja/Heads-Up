@@ -1,0 +1,1 @@
+0 1 24 7 * /www_home/headsup/artisan sms:send --time="2016-07-24 01:00"
