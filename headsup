@@ -1,0 +1,28 @@
+#!/bin/bash
+
+build() {
+    docker build -t codeawesome/headsup .
+}
+
+deploy() {
+    docker run -p 0.0.0.0:80:8000 --name headsup --link headsupdb:headsupdb --link webscraper:webscraper -d codeawesome/headsup
+}
+
+undeploy() {
+    docker stop headsup
+    docker rm headsup
+}
+
+case "$1" in
+    build)
+        build $2
+        ;;
+    deploy)
+        deploy $2
+        ;;
+    undeploy)
+        undeploy $2
+        ;;
+    *)
+        echo "headsup build|deploy|undeploy"
+esac

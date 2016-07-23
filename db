@@ -1,0 +1,42 @@
+#!/bin/bash
+
+drop() {
+    docker stop headsupdb headsupdb-data
+    docker rm headsupdb headsupdb-data
+}
+
+create() {
+    # create data container for postgres
+    docker run --name headsupdb-data -d -v /var/lib/mysql/data debian:wheezy /bin/sh -c 'while true; do sleep 9999; done'
+
+    # create postgres container
+    docker run \
+        --name headsupdb \
+        --volumes-from headsupdb-data \
+        --restart always \
+        -e MYSQL_USER=headsup \
+        -e MYSQL_PASSWORD=5hVfZ2bV5tBZdH88 \
+        -e MYSQL_ROOT_PASSWORD=Z9T8kbZzP7Yahsu2 \
+        -e MYSQL_ALLOW_EMPTY_PASSWORD=no \
+        -e MYSQL_RANDOM_ROOT_PASSWORD=no \
+        -d \
+        mysql:5.6
+}
+
+seed() {
+    docker run -it --rm --link sendahwalletdb:sendahwalletdb sendah/wallet seed
+}
+
+case "$1" in
+    drop)
+        drop $2
+        ;;
+    create)
+        create $2
+        ;;
+    seed)
+        seed $2
+        ;;
+    *)
+        echo "db drop|create|seed"
+esac
