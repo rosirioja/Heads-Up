@@ -11,6 +11,14 @@
 |
 */
 
+Route::group(['prefix' => 'api'], function(){
+    Route::group(['prefix' => 'v1', 'namespace' => 'Api\v1'], function(){
+        
+        Route::resource('alerts', 'AlertController');
+
+    });
+});
+
 Route::get('/', function () {
     return view('welcome');
 });

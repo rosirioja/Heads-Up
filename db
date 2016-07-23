@@ -6,10 +6,10 @@ drop() {
 }
 
 create() {
-    # create data container for postgres
+    # create data container for mysql
     docker run --name headsupdb-data -d -v /var/lib/mysql/data debian:wheezy /bin/sh -c 'while true; do sleep 9999; done'
 
-    # create postgres container
+    # create mysql container
     docker run \
         --name headsupdb \
         --volumes-from headsupdb-data \
@@ -17,14 +17,9 @@ create() {
         -e MYSQL_USER=headsup \
         -e MYSQL_PASSWORD=5hVfZ2bV5tBZdH88 \
         -e MYSQL_ROOT_PASSWORD=Z9T8kbZzP7Yahsu2 \
-        -e MYSQL_ALLOW_EMPTY_PASSWORD=no \
-        -e MYSQL_RANDOM_ROOT_PASSWORD=no \
+        -e MYSQL_DATABASE=headsup \
         -d \
         mysql:5.6
-}
-
-seed() {
-    docker run -it --rm --link sendahwalletdb:sendahwalletdb sendah/wallet seed
 }
 
 case "$1" in
@@ -34,9 +29,6 @@ case "$1" in
     create)
         create $2
         ;;
-    seed)
-        seed $2
-        ;;
     *)
-        echo "db drop|create|seed"
+        echo "db drop|create"
 esac
