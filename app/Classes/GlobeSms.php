@@ -72,7 +72,7 @@ class GlobeSms extends GlobeApi {
             );
 
             $postFields = array(
-                'message' => urlencode($this->message),
+                'message' => $this->message,
                 'address' => $this->recepient
             );
 
