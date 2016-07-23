@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
-use Validator, Log, Exception;
+use Validator, Log, Exception, DB;
 
 use App\Http\Controllers\BaseController;
 
@@ -30,6 +30,8 @@ class AlertController extends BaseController
         $this->category = $category;
         $this->repetition = $repetition;
         $this->alert = $alert;
+
+        DB::enableQueryLog();
     }
 
     /**
@@ -61,7 +63,7 @@ class AlertController extends BaseController
                 'category_id'       => 'required|numeric',
                 // 'name'              => 'required', optional
                 'location'          => 'required',
-                'scheduled_time'    => 'required|date',
+                'set_date'          => 'required|date',
                 'repetition_id'     => 'required|numeric'
             ]);
             if ($validator->fails()) {
@@ -71,7 +73,7 @@ class AlertController extends BaseController
             $user_id = $request->input('user_id');
             $category_id = $request->input('category_id');
             $repetition_id = $request->input('repetition_id');
-
+            $set_date = $request->input('set_date');
             // VALIDATION - START
 
             // check if user id exists and active
@@ -95,13 +97,17 @@ class AlertController extends BaseController
                 'user_id' => $user_id,
                 'name' => $request->input('name'),
                 'location' => $request->input('location'),
-                'scheduled_time' => $request->input('scheduled_time'),
+                'set_date' => $set_date,
+                'scheduled_date' =>  $this->_setScheduledDate($set_date, $repetition_id),
                 'repetition_id' => $repetition_id
             ];
 
-            if (! $this->alert->store($data)) {
+            if (! $alert = $this->alert->store($data)) {
                 throw new Exception("Error Processing Request: Cannot store alert");
             }
+
+            // Set Up New Cron
+            //$response = $this->_setNewCron($alert);
 
         } catch (Exception $e) {
             return response()->json([
@@ -111,6 +117,56 @@ class AlertController extends BaseController
         }
 
         return response()->json(['success' => true]);
+    }
+
+    /**
+     * Compute for the date
+     * Date will be added to CRON
+     *
+     * @param date set date by user
+     * @param int repetition id
+     * @return void
+     */
+    public function _setScheduledDate($date = '', $repetition_id = '')
+    {
+        try {
+            if (empty($date) || empty($repetition_id)) {
+                throw new Exception();
+            }
+
+            $repetition = $this->repetition->get($repetition_id)->name;
+
+            $scheduled_date = $date;
+            $date_now = date('Y-m-d H:i');
+
+            switch ($repetition) {
+                case 'daily':
+                    /* check if the input date is ahead of todays time
+                     * if yes, the input date will be saved in cron
+                     * else, increment date by +1
+                     */
+                    if (date('Y-m-d H:i', strtotime($date)) > $date_now) {
+                        $scheduled_date = $date;
+                    } else {
+                        $scheduled_date = date('Y-m-d H:i', strtotime('+1 day', strtotime($date)));
+                    }
+                    break;
+
+                case 'every-weekday':
+                    break;
+
+                case 'weekly':
+                    break;
+
+                case 'one-time-schedule':
+                default:
+                    break;
+            }
+        } catch (Exception $e) {
+            return false;
+        }
+
+        return $scheduled_date;
     }
 
     /**
