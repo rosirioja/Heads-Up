@@ -52,7 +52,7 @@ class GlobeApi {
      */
     protected function _curlPost($url, $fields = array()) {
 
-        $fields = "-----011000010111000001101001\r\nContent-Disposition: form-data; name=\"message\"\r\n\r\nsample\r\n-----011000010111000001101001\r\nContent-Disposition: form-data; name=\"address\"\r\n\r\n+639156809880\r\n-----011000010111000001101001--";
+        $fields = "-----011000010111000001101001\r\nContent-Disposition: form-data; name=\"message\"\r\n\r\n". $fields['message'] ."\r\n-----011000010111000001101001\r\nContent-Disposition: form-data; name=\"address\"\r\n\r\n". $fields['address'] ."\r\n-----011000010111000001101001--";
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
