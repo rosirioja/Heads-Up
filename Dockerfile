@@ -22,8 +22,6 @@ COPY tests/ /var/www/headsup/tests/
 RUN chmod 775 -R /var/www/headsup/bootstrap
 RUN chmod 775 -R /var/www/headsup/storage
 
-RUN mkdir /var/www/headsup/bootstrap/cache && touch /var/www/headsup/bootstrap/cache/services.json
-
 RUN cd /var/www/headsup && composer -n install 
 
 COPY cron/crontab /app/crontab
