@@ -110,8 +110,7 @@ class AlertController extends BaseController
             }
 
             // Validate New Cron
-            $cron = new Cron();
-            $cron->validate($alert);
+            $this->_validateCron($alert);
 
         } catch (Exception $e) {
             return response()->json([
