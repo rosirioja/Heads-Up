@@ -27,7 +27,8 @@
             "app/Helpers/ConversionHelper.php",
             "app/Classes/GlobeApi.php",
             "app/Classes/GlobeSms.php",
-            "app/Classes/Cron.php"
+            "app/Classes/Cron.php",
+            "app/Classes/WebScraping.php"
         ]
     },
     "autoload-dev": {
