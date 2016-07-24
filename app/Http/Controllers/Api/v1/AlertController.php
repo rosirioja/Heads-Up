@@ -181,34 +181,43 @@ class AlertController extends BaseController
     public function _validateCron($data = [])
     {
         try {
-            if (empty($data)) {
-                throw new Exception();
-            }
+            $alert_id = '';
+            $scheduled_date = '';
 
-            $alert_id = $data->id;
-            $scheduled_date = $data->scheduled_date;
+            if (! empty($data)) {
+                $alert_id = $data->id;
+                $scheduled_date = $data->scheduled_date;
+            }
 
             //  get the latest scheduled
             $args = [
                 'where' => [
                     'and' => [
                         ['field' => 'scheduled_date', 'operator' => '>=', 'value' => date('Y-m-d H:i')],
-                        ['field' => 'id', 'operator' => '!=', 'value' => $alert_id]
                     ]
                 ],
                 'order_by' => ['scheduled_date' => 'asc'],
                 'limit' => 1
             ];
 
+            if (! empty($alert_id)) {
+                $args['where']['and'] = ['field' => 'id', 'operator' => '!=', 'value' => $alert_id];
+            }
+
             $latest = $this->alert->getList($args);
 
-            /* Check if the latest is ahead/greater than the scheduled date
-             * if yes, set new cron
-             * else do nothing
-             */
-            if ($latest[0]->scheduled_date > $scheduled_date) {
+            if (! empty($scheduled_date)) {
+                /* Check if the latest is ahead/greater than the scheduled date
+                * if yes, set new cron
+                * else do nothing
+                */
+                if ($latest[0]->scheduled_date > $scheduled_date) {
+                    $cron = new Cron();
+                    $cron->setNewCron($scheduled_date);
+                }
+            } else {
                 $cron = new Cron();
-                $cron->setNewCron($scheduled_date);
+                $cron->setNewCron($latest[0]->scheduled_date);
             }
 
         } catch (Exception $e) {

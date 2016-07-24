@@ -4,6 +4,7 @@ namespace App\Classes;
 
 class Cron {
 
+    public $live_dir = '';
     /**
      * Recreate New Cron
      *
@@ -20,8 +21,9 @@ class Cron {
             // Setup the script
             $date = parse_date($scheduled_date);
 
-            $dir 	= '/www_home/headsup/artisan sms:send --time="'. $scheduled_date .'"';
+            $dir 	= 'php /home/rosiliza/www_home/heads-up/artisan send:sms "'. $scheduled_date .'"';
             $cron 	= $date['minute'].' '.$date['hour'].' '.$date['day'].' '.$date['month'].' * '.$dir;
+            //$cron 	= '* * * * * '.$dir;
 
             $output = shell_exec('crontab -r');
 			$output = shell_exec('crontab -l');
