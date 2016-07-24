@@ -21,7 +21,8 @@ class Cron {
             // Setup the script
             $date = parse_date($scheduled_date);
 
-            $dir 	= 'php /home/rosiliza/www_home/heads-up/artisan send:sms "'. $scheduled_date .'"';
+            //$dir 	= 'php /home/rosiliza/www_home/heads-up/artisan send:sms "'. $scheduled_date .'"';
+            $dir 	= 'php /var/www/headsup/artisan send:sms "'. $scheduled_date .'"';
             $cron 	= $date['minute'].' '.$date['hour'].' '.$date['day'].' '.$date['month'].' * '.$dir;
             //$cron 	= '* * * * * '.$dir;
 

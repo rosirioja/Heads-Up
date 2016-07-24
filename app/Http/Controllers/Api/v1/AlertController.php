@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
-use Validator, Log, Exception, DB;
+use Validator, Log, Exception, DB, DateTimeZone, DateTime;
 
 use App\Http\Controllers\BaseController;
 
@@ -76,7 +76,14 @@ class AlertController extends BaseController
             $user_id = $request->input('user_id');
             $category_id = $request->input('category_id');
             $repetition_id = $request->input('repetition_id');
-            $set_date = $request->input('set_date');
+
+            // Convert Asia/Manila Timezone
+
+            $tz = new DateTimeZone('Asia/Manila');
+            $date = new DateTime($request->input('set_date'));
+            $date->setTimeZone($tz);
+            $set_date = date_format($date, 'Y-m-d H:i:s');
+
             // VALIDATION - START
 
             // check if user id exists and active
