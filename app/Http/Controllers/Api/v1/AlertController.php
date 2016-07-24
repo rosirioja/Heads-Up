@@ -193,7 +193,7 @@ class AlertController extends BaseController
             $args = [
                 'where' => [
                     'and' => [
-                        ['field' => 'scheduled_date', 'operator' => '>=', 'value' => date('Y-m-d H:i')],
+                        ['field' => 'scheduled_date', 'operator' => '>', 'value' => date('Y-m-d H:i')],
                     ]
                 ],
                 'order_by' => ['scheduled_date' => 'asc'],
