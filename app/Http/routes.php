@@ -13,7 +13,9 @@
 
 Route::group(['prefix' => 'api'], function(){
     Route::group(['prefix' => 'v1', 'namespace' => 'Api\v1'], function(){
-        
+
+        Route::get('writecron', 'AlertController@writeCron');
+        Route::get('latest', 'AlertController@latestDate');
         Route::resource('alerts', 'AlertController');
 
     });

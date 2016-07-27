@@ -42,13 +42,43 @@ class AlertController extends BaseController
      */
     public function index()
     {
-        $this->_validateCron();
-        exit;
         $response = new GlobeApi();
         $sms = $response->sms(5527);
         $response = $sms->sendMessage('tMkc6GVDJN3-0KKDMDyWbbN9JpUg_ZtqLqWbRB8wDdM', '+63915609880', 'sample sample');
 
         print_r($response);
+    }
+
+    public function writeCron()
+    {
+        $this->_validateCron();
+    }
+
+    public function latestDate()
+    {
+        //  get the latest scheduled
+        $args = [
+            'where' => [
+                'and' => [
+                    ['field' => 'scheduled_date', 'operator' => '>', 'value' => date('Y-m-d H:i')],
+                ]
+            ],
+            'order_by' => ['scheduled_date' => 'asc'],
+            'limit' => 1
+        ];
+
+        if (! empty($alert_id)) {
+            $args['where']['and'] = ['field' => 'id', 'operator' => '!=', 'value' => $alert_id];
+        }
+
+        $latest = $this->alert->getList($args);
+
+        if ($latest->isEmpty()) {
+            echo 'no latest date to cron';
+            return;
+        }
+
+        echo $latest[0]->scheduled_date;
     }
 
     /**
@@ -214,17 +244,33 @@ class AlertController extends BaseController
             $latest = $this->alert->getList($args);
 
             if (! empty($scheduled_date)) {
-                /* Check if the latest is ahead/greater than the scheduled date
-                * if yes, set new cron
-                * else do nothing
-                */
-                if ($latest[0]->scheduled_date > $scheduled_date) {
+                /* If empty latest date,
+                 *  set cron using the scheduled date
+                 */
+                if ($latest->isEmpty()) {
+                    echo 'scheduled date';
                     $cron = new Cron();
                     $cron->setNewCron($scheduled_date);
+                } else {
+                    /* Check if the latest is ahead/greater than the scheduled date
+                    * if yes, set new cron
+                    * else do nothing
+                    */
+                    if ($latest[0]->scheduled_date > $scheduled_date) {
+                        echo 'scheduled date';
+                        $cron = new Cron();
+                        $cron->setNewCron($scheduled_date);
+                    }
                 }
             } else {
-                $cron = new Cron();
-                $cron->setNewCron($latest[0]->scheduled_date);
+                /* If empty scheduled date
+                 *  set cron using the latest date
+                 */
+                if (! $latest->isEmpty()){
+                    echo 'latest date';
+                    $cron = new Cron();
+                    $cron->setNewCron($latest[0]->scheduled_date);
+                }
             }
 
         } catch (Exception $e) {
