@@ -91,6 +91,7 @@ class SendSms extends Command
         ]);
 
         if (empty($alerts)) {
+            Log::info('Send SMS: No Alerts');
             return;
         }
 
@@ -129,7 +130,14 @@ class SendSms extends Command
             // Send SMS
             $this->_sendSms($key->user->accesstoken, $key->user->msisdn, $message);
 
-            Log::info($data);
+            // Update New Scheduled Date
+            $date = $this->alertController->_setScheduledDate($key->scheduled_date, $key->repetition_id);
+            $response = $this->alert->update($key->id, [
+                'scheduled_date' => $date
+            ]);
+            Log::info('Send SMS > New Scheduled Date for '. $key->id .': '. $date);
+            Log::info($response);
+
             exit;
         }
     }
@@ -180,7 +188,7 @@ class SendSms extends Command
                 $message = '';
                 break;
         }
-        Log::info($message);
+        Log::info('SendSMS: '. $message);
         return $message;
     }
 
@@ -200,6 +208,7 @@ class SendSms extends Command
         $sms = $response->sms(5527);
         $response = $sms->sendMessage($accesstoken, $msisdn, $message);
 
+        Log::info('Send SMS: send SMS');
         Log::info($response);
         return $response;
     }
