@@ -6,7 +6,7 @@ headsup:
   ports:
     - "8000:8000"
   links:
-    - headsupdb
+    - headsupdb:headsupdb
   external_links:
      - webscraper_web_1:webscraper
 
@@ -19,5 +19,3 @@ headsupdb:
     MYSQL_USER: "headsup"
     MYSQL_PASSWORD: "5hVfZ2bV5tBZdH88"
     MYSQL_DATABASE: "headsup"
-    MYSQL_ALLOW_EMPTY_PASSWORD: "no"
-    MYSQL_RANDOM_ROOT_PASSWORD: "no"

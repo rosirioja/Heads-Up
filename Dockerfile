@@ -1,6 +1,6 @@
 FROM debian:jessie
 
-RUN apt-get update && apt-get -y install php5 libapache2-mod-php5 php5-mcrypt php5-mysql php5-curl curl git rsyslog vim nano --fix-missing
+RUN apt-get update && apt-get -y install php5 libapache2-mod-php5 php5-mcrypt php5-pgsql php5-mysql php5-curl curl git rsyslog vim nano --fix-missing
 
 COPY .env artisan composer.json phpunit.xml server.php phpspec.yml /var/www/headsup/
 
@@ -13,7 +13,6 @@ RUN groupadd -g 1000 www && \
 COPY . /var/www/headsup
 
 RUN chmod 777 -R /var/www/headsup/bootstrap 
-#RUN chmod 777 -R /var/www/headsup/bootstrap/cache 
 RUN chmod 777 -R /var/www/headsup/storage 
 
 WORKDIR /var/www/headsup
