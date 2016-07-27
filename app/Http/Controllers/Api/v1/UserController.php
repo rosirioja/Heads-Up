@@ -168,14 +168,14 @@ class UserController extends BaseController
             ]);
        
         if (empty($user)) {
-            return response()->json(false);
+            return response()->json(array('user_id' => 0));
         }
 
         if (! $user->active) {
-            return response()->json(false);
+            return response()->json(array('user_id' => 0));
         }
 
-        return response()->json(true);
+        return response()->json(array('user_id' => $user->id));
     }
 
 }
