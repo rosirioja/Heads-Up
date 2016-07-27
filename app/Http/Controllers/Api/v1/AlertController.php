@@ -250,7 +250,7 @@ class AlertController extends BaseController
                  *  set cron using the scheduled date
                  */
                 if ($latest->isEmpty()) {
-                    echo 'scheduled date';
+                    //echo 'scheduled date';
                     $cron = new Cron();
                     $cron->setNewCron($scheduled_date);
                 } else {
@@ -259,7 +259,7 @@ class AlertController extends BaseController
                     * else do nothing
                     */
                     if ($latest[0]->scheduled_date >= $scheduled_date) {
-                        echo 'scheduled date';
+                        //echo 'scheduled date';
                         $cron = new Cron();
                         $cron->setNewCron($scheduled_date);
                     }
@@ -269,7 +269,7 @@ class AlertController extends BaseController
                  *  set cron using the latest date
                  */
                 if (! $latest->isEmpty()){
-                    echo 'latest date';
+                    //echo 'latest date';
                     $cron = new Cron();
                     $cron->setNewCron($latest[0]->scheduled_date);
                 }
