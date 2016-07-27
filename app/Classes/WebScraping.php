@@ -9,8 +9,8 @@ class WebScraping {
     public function __construct($category_id = '')
     {
         $this->category_id = $category_id;
-        //$this->live_url = 'http://webscraper:5000/api/0/%s'
-        $this->live_url = 'http://headsup-app.cloudapp.net:5000/api/0/%s';
+        //$this->live_url = 'http://webscraper:5000/api/0/%s'; // for local
+        $this->live_url = 'http://headsup-app.cloudapp.net:5000/api/0/%s'; // for prod
     }
 
     /**

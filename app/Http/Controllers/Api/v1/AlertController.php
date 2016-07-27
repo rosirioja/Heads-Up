@@ -238,7 +238,7 @@ class AlertController extends BaseController
             ];
 
             if (! empty($alert_id)) {
-                $args['where']['and'] = ['field' => 'id', 'operator' => '!=', 'value' => $alert_id];
+                $args['where']['and'][] = ['field' => 'id', 'operator' => '!=', 'value' => $alert_id];
             }
 
             $latest = $this->alert->getList($args);
@@ -256,7 +256,7 @@ class AlertController extends BaseController
                     * if yes, set new cron
                     * else do nothing
                     */
-                    if ($latest[0]->scheduled_date > $scheduled_date) {
+                    if ($latest[0]->scheduled_date >= $scheduled_date) {
                         echo 'scheduled date';
                         $cron = new Cron();
                         $cron->setNewCron($scheduled_date);
