@@ -2,6 +2,8 @@
 
 namespace App\Classes;
 
+use Log;
+
 class Cron {
 
     public $live_dir = '';

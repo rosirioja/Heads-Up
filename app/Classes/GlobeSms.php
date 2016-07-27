@@ -4,7 +4,7 @@ namespace App\Classes;
 
 use App\Classes\GlobeApi;
 
-use Exception;
+use Exception, Log;
 
 class GlobeSms extends GlobeApi {
 
