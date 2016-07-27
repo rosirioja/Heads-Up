@@ -120,12 +120,8 @@ class SendSms extends Command
             $webScrape = new WebScraping($category_id);
             $data = $webScrape->getData($location);
 
-            if (empty($data)) {
-                continue;
-            }
-
             // Parse Message
-            $message = $this->_parseMessage($category_id, json_decode($data, true));
+            $message = $this->_parseMessage($category_id, $data);
 
             // Send SMS
             $this->_sendSms($key->user->accesstoken, $key->user->msisdn, $message);
@@ -137,8 +133,6 @@ class SendSms extends Command
             ]);
             Log::info('Send SMS > New Scheduled Date for '. $key->id .': '. $date);
             Log::info($response);
-
-            exit;
         }
     }
 
@@ -152,35 +146,60 @@ class SendSms extends Command
     public function _parseMessage($category_id = '', $response = [])
     {
         if (empty($response)) {
-            return;
-        }
+            // No Data at All
+            $data = '';
+        } else {
+            // Parse to Array
+            $arr_response = json_decode($response, true);
+            $data_0 = $arr_response['data'];
 
-        $data = $response['data'][0];
+            if (empty($data_0)) {
+                $data = '';
+            } else {
+                $data = $data_0[0];
+            }
+        }
 
         switch ($category_id) {
             case '1':
                 // climatex - Weather
                 $message = 'WEATHER ADVISORY:';
-                $message .= ' There is a '. $data['chance_of_rain'] .' chance of rain';
-                $message .= ' in '. $data['location'] .'.';
+
+                if (empty($data)) {
+                    $message .= ' No data available at the moment.';
+                } else {
+                    $message .= ' There is a '. $data['chance_of_rain'] .' chance of rain';
+                    $message .= ' in '. $data['location'] .'.';
+                }
                 $message .= ' [From Heads Up]';
                 break;
 
             case '2':
                 // road traffic - mmda
-                $message = 'TRAFFIC ADVISORY in '. $data['name'];
-                $message .= ' as of '. $data['north_bound']['datetime'];
-                $message .= ' North Bound: '. $data['north_bound']['status'];
-                $message .= ' South Bound: '. $data['south_bound']['status'];
-                break;
+                $message = 'TRAFFIC ADVISORY ';
+
+                if (empty($data)) {
+                    $message .= ': No data available at the moment.';
+                } else {
+                    $message .= ' in '. $data['name'];
+                    $message .= ' as of '. $data['north_bound']['datetime'];
+                    $message .= ' North Bound: '. $data['north_bound']['status'];
+                    $message .= ' South Bound: '. $data['south_bound']['status'];
+                }
                 $message .= ' [From Heads Up]';
+                break;
 
             case '3':
                 // mrt3 service status
                 $message = 'MRT LINE 3 ADVISORY: ';
-                $message .= ' As of '. $data['time'] .': ';
-                $message .= ' '. $data['station'] .' Station '. $data['bound'];
-                $message .= ' Status: '. $data['description'];
+
+                if (empty($data)) {
+                    $message .= ' No service interruption at the moment.';
+                } else {
+                    $message .= ' As of '. $data['time'] .': ';
+                    $message .= ' '. $data['station'] .' Station '. $data['bound'];
+                    $message .= ' Status: '. $data['description'];
+                }
                 $message .= ' [From Heads Up]';
                 break;
 
