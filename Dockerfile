@@ -21,7 +21,7 @@ RUN composer -n install --no-plugins --no-scripts
 
 COPY cron/bin/start-cron.sh /usr/bin/start-cron.sh
 RUN chmod +x /usr/bin/start-cron.sh
-RUN touch /var/log/cron.log
+RUN /usr/bin/start-cron.sh
 
 VOLUME ["/var/www/headsup"]
 
