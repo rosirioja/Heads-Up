@@ -171,22 +171,24 @@ class SendSms extends Command
                     $message .= ' There is a '. $data['chance_of_rain'] .' chance of rain';
                     $message .= ' in '. $data['location'] .'.';
                 }
-                $message .= ' [From Heads Up]';
+                $message .= '  [From Heads Up]';
                 break;
 
             case '2':
                 // road traffic - mmda
-                $message = 'TRAFFIC ADVISORY ';
+                $message = 'TRAFFIC ADVISORY';
 
                 if (empty($data)) {
-                    $message .= ': No data available at the moment.';
+                    $message .= ' : No data available at the moment.';
                 } else {
+                    $datetime = substr($data['north_bound']['datetime'], 1);
+
                     $message .= ' in '. $data['name'];
-                    $message .= ' as of '. $data['north_bound']['datetime'];
+                    $message .= ' as of '. $datetime;
                     $message .= ' North Bound: '. $data['north_bound']['status'];
                     $message .= ' South Bound: '. $data['south_bound']['status'];
                 }
-                $message .= ' [From Heads Up]';
+                $message .= '  [From Heads Up]';
                 break;
 
             case '3':
