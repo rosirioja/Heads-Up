@@ -44,7 +44,7 @@ class AlertController extends BaseController
     {
         $response = new GlobeApi();
         $sms = $response->sms(5527);
-        $response = $sms->sendMessage('tMkc6GVDJN3-0KKDMDyWbbN9JpUg_ZtqLqWbRB8wDdM', '+63915609880', 'sample sample');
+        $response = $sms->sendMessage('tMkc6GVDJN3-0KKDMDyWbbN9JpUg_ZtqLqWbRB8wDdM', '+639156809880', 'sample sample');
 
         print_r($response);
     }
