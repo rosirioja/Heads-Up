@@ -32,6 +32,7 @@ class Cron {
 
             exec('crontab '.public_path('tmp/crontab.txt'));
 
+            Log::info('Created new cron: '. $scheduled_date);
         } catch (Exception $e) {
             return false;
         }

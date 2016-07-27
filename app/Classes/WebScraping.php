@@ -66,6 +66,9 @@ class WebScraping {
             'location' => $location
         ]);
 
+        Log::info('Webscrape '. $url);
+        Log::info('Webscrape '. $data);
+
         $ch = curl_init($url);
         //curl_setopt($ch, CURLOPT_HEADER, true);
         curl_setopt($ch, CURLOPT_VERBOSE, 1);
