@@ -55,7 +55,7 @@ class GlobeApi {
     protected function _curlPost($url, $fields = array()) {
 
         Log::info('Curl Post '. $url);
-        Log::info('Curl Post '. $fields);
+        Log::info($fields);
 
         $fields = "-----011000010111000001101001\r\nContent-Disposition: form-data; name=\"message\"\r\n\r\n". $fields['message'] ."\r\n-----011000010111000001101001\r\nContent-Disposition: form-data; name=\"address\"\r\n\r\n". $fields['address'] ."\r\n-----011000010111000001101001--";
 
