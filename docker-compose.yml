@@ -5,6 +5,10 @@ headsup:
     - .:/var/www/headsup
   ports:
     - "8000:8000"
+  links:
+    - headsupdb
+  external_links:
+     - webscraper_web_1:webscraper
 
 headsupdb:
   image: mysql:5.6
