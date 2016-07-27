@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
-use Validator, Log, Exception, DB, DateTimeZone, DateTime;
+use Validator, Log, Exception, DB, DateTimeZone, DateTime, Carbon\Carbon;
 
 use App\Http\Controllers\BaseController;
 
@@ -178,6 +178,8 @@ class AlertController extends BaseController
 
             $scheduled_date = $date;
             $date_now = date('Y-m-d H:i');
+
+            Log::info('Set Scheduled Date (today '. $date_now .')'. $scheduled_date);
 
             switch ($repetition) {
                 case 'daily':

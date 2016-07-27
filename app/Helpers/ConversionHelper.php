@@ -38,6 +38,7 @@ if (! function_exists('parse_date')) {
     function parse_date($date = '')
     {
         $date 	=  Carbon::parse($date);
+        $date->timezone = 'UTC';
 
 		$minute = $date->minute;
 		$hour	= $date->hour;
