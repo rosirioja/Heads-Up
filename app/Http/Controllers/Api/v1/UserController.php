@@ -40,13 +40,13 @@ class UserController extends BaseController
      *
      * @param POST data (access token)
      * @return void
-     * @author 
+     * @author
      **/
     public function auth(Request $request)
     {
         Log::info('Subscriber Consent');
         Log::info($request->all());
-            
+
 
         $response = $request->all();
 
@@ -59,7 +59,7 @@ class UserController extends BaseController
         // Apply for opt-in
         $this->_subscribe($response);
         return 'ok';
-            
+
     }
 
     /**
@@ -67,7 +67,7 @@ class UserController extends BaseController
      *
      * @param array data
      * @return void
-     * @author 
+     * @author
      **/
     public function _subscribe($data = [])
     {
@@ -91,6 +91,7 @@ class UserController extends BaseController
             $args = [
                 'msisdn' => $mobile_number,
                 'accesstoken' => $access_token,
+                'email' => uniqid().'@gmail.com',
                 'active' => 1
                 ];
 
@@ -107,14 +108,14 @@ class UserController extends BaseController
                 Log::info('Subscribe: cannot store User '. json_encode($data));
             }
         }
-    }        
+    }
 
     /**
      * Unsubscribe User
      *
      * @param array data
      * @return void
-     * @author 
+     * @author
      **/
     public function _unsubscribe($data = [])
     {
@@ -154,10 +155,10 @@ class UserController extends BaseController
      *  Validate active user
      * if active, return true
      * if inactive / not exists return false
-     * 
+     *
      * @param post data (msisdn)
      * @return void
-     * @author 
+     * @author
      **/
     public function postValidate(Request $request)
     {
@@ -166,7 +167,7 @@ class UserController extends BaseController
         $user = $this->user->getBy([
             'msisdn' => $mobile_number
             ]);
-       
+
         if (empty($user)) {
             return response()->json(array('user_id' => 0));
         }
