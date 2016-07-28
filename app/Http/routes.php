@@ -18,6 +18,9 @@ Route::group(['prefix' => 'api'], function(){
         Route::get('latest', 'AlertController@latestDate');
         Route::resource('alerts', 'AlertController');
 
+        Route::any('users/auth', 'UserController@auth');
+        Route::post('users/validate', 'UserController@postValidate');
+        Route::resource('users', 'UserController');
     });
 });
 
