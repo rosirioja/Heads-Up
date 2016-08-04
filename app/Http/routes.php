@@ -14,11 +14,15 @@
 Route::group(['prefix' => 'api'], function(){
     Route::group(['prefix' => 'v1', 'namespace' => 'Api\v1'], function(){
 
+        // Rewrite the cron - for testing and debugging
         Route::get('writecron', 'AlertController@writeCron');
+        // Get the latest date to be run in cron - for testing and debugging
         Route::get('latest', 'AlertController@latestDate');
         Route::resource('alerts', 'AlertController');
 
+        // User Consent Flow
         Route::any('users/auth', 'UserController@auth');
+        // Mobile - User validation
         Route::post('users/validate', 'UserController@postValidate');
         Route::resource('users', 'UserController');
     });

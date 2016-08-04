@@ -36,52 +36,6 @@ class AlertController extends BaseController
     }
 
     /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-        $response = new GlobeApi();
-        $sms = $response->sms(5527);
-        $response = $sms->sendMessage('tMkc6GVDJN3-0KKDMDyWbbN9JpUg_ZtqLqWbRB8wDdM', '+639156809880', 'sample sample');
-
-        print_r($response);
-    }
-
-    public function writeCron()
-    {
-        $this->_validateCron();
-    }
-
-    public function latestDate()
-    {
-        //  get the latest scheduled
-        $args = [
-            'where' => [
-                'and' => [
-                    ['field' => 'scheduled_date', 'operator' => '>', 'value' => date('Y-m-d H:i')],
-                ]
-            ],
-            'order_by' => ['scheduled_date' => 'asc'],
-            'limit' => 1
-        ];
-
-        if (! empty($alert_id)) {
-            $args['where']['and'] = ['field' => 'id', 'operator' => '!=', 'value' => $alert_id];
-        }
-
-        $latest = $this->alert->getList($args);
-
-        if ($latest->isEmpty()) {
-            echo 'no latest date to cron';
-            return;
-        }
-
-        echo $latest[0]->scheduled_date;
-    }
-
-    /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -94,7 +48,7 @@ class AlertController extends BaseController
             $validator = Validator::make($request->all(), [
                 'user_id'           => 'required|numeric',
                 'category_id'       => 'required|numeric',
-                // 'name'              => 'required', optional
+                // 'name'              => 'required', //optional
                 'location'          => 'required',
                 'set_date'          => 'required|date',
                 'repetition_id'     => 'required|numeric'
@@ -106,13 +60,6 @@ class AlertController extends BaseController
             $user_id = $request->input('user_id');
             $category_id = $request->input('category_id');
             $repetition_id = $request->input('repetition_id');
-
-            // Convert Asia/Manila Timezone
-
-            $tz = new DateTimeZone('Asia/Manila');
-            $date = new DateTime($request->input('set_date'));
-            $date->setTimeZone($tz);
-            $set_date = date_format($date, 'Y-m-d H:i:s');
 
             // VALIDATION - START
 
@@ -131,6 +78,13 @@ class AlertController extends BaseController
                 throw new Exception("Error Processing Request: Invalid Repetition");
             }
             // VALIDATION - END
+
+            // Convert Asia/Manila Timezone
+
+            $tz = new DateTimeZone('Asia/Manila');
+            $date = new DateTime($request->input('set_date'));
+            $date->setTimeZone($tz);
+            $set_date = date_format($date, 'Y-m-d H:i:s');
 
             $data = [
                 'category_id' => $category_id,
@@ -244,7 +198,7 @@ class AlertController extends BaseController
             }
 
             $latest = $this->alert->getList($args);
-
+            Log::info($latest);
             if (! empty($scheduled_date)) {
                 /* If empty latest date,
                  *  set cron using the scheduled date
@@ -325,17 +279,6 @@ class AlertController extends BaseController
     }
 
     /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -344,7 +287,78 @@ class AlertController extends BaseController
      */
     public function update(Request $request, $id)
     {
-        //
+        try {
+            // Validate the request
+            $validator = Validator::make($request->all(), [
+                'user_id'           => 'required|numeric',
+                'category_id'       => 'required|numeric',
+                // 'name'              => 'required', //optional
+                'location'          => 'required',
+                'set_date'          => 'required|date',
+                'repetition_id'     => 'required|numeric'
+            ]);
+            if ($validator->fails()) {
+                throw new Exception(json_to_string($validator->messages()->toArray()));
+            }
+
+            $user_id = $request->input('user_id');
+            $category_id = $request->input('category_id');
+            $repetition_id = $request->input('repetition_id');
+
+            // VALIDATION - START
+
+            // check if user id exists and active
+            if (! $this->user->exists(['id' => $user_id, 'active' => 1])) {
+                throw new Exception("Error Processing Request: Invalid User");
+            }
+
+            // check if alert id exists and active
+            if (! $this->alert->exists(['id' => $id])) {
+                throw new Exception("Error Processing Request: Invalid Alert");
+            }
+
+            // check if valid category
+            if (! $this->category->exists(['id' => $category_id])) {
+                throw new Exception("Error Processing Request: Invalid Category");
+            }
+
+            // check if valid repetition
+            if (! $this->repetition->exists(['id' => $repetition_id])) {
+                throw new Exception("Error Processing Request: Invalid Repetition");
+            }
+            // VALIDATION - END
+
+            // Convert Asia/Manila Timezone
+
+            $tz = new DateTimeZone('Asia/Manila');
+            $date = new DateTime($request->input('set_date'));
+            $date->setTimeZone($tz);
+            $set_date = date_format($date, 'Y-m-d H:i:s');
+
+            $data = [
+                'category_id' => $category_id,
+                'name' => $request->input('name'),
+                'location' => $request->input('location'),
+                'set_date' => $set_date,
+                'scheduled_date' =>  $this->_setScheduledDate($set_date, $repetition_id),
+                'repetition_id' => $repetition_id
+            ];
+
+            if (! $alert = $this->alert->update($id, $data)) {
+                throw new Exception("Error Processing Request: Cannot update alert");
+            }
+            
+            // Validate New Cron
+            $this->_validateCron($this->alert->get($id));
+
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage()
+            ]);
+        }
+
+        return response()->json(['success' => true]);
     }
 
     /**
@@ -357,4 +371,66 @@ class AlertController extends BaseController
     {
         //
     }
+
+    /**** START - FUNCTIONS FOR TESTING AND DEBUGGING ****/
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index()
+    {
+        $response = new GlobeApi();
+        $sms = $response->sms(5527);
+        $response = $sms->sendMessage('tMkc6GVDJN3-0KKDMDyWbbN9JpUg_ZtqLqWbRB8wDdM', '+639156809880', 'sample sample');
+
+        print_r($response);
+    }
+
+    /**
+     * Rewrite the cron job
+     * For testing and debugging purposes
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function writeCron()
+    {
+        $this->_validateCron();
+    }
+
+    /**
+     * Get the latest date to be run by cron
+     * For testing and debugging purposes
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function latestDate()
+    {
+        //  get the latest scheduled
+        $args = [
+            'where' => [
+                'and' => [
+                    ['field' => 'scheduled_date', 'operator' => '>', 'value' => date('Y-m-d H:i')],
+                ]
+            ],
+            'order_by' => ['scheduled_date' => 'asc'],
+            'limit' => 1
+        ];
+
+        if (! empty($alert_id)) {
+            $args['where']['and'] = ['field' => 'id', 'operator' => '!=', 'value' => $alert_id];
+        }
+
+        $latest = $this->alert->getList($args);
+
+        if ($latest->isEmpty()) {
+            echo 'no latest date to cron';
+            return;
+        }
+
+        echo $latest[0]->scheduled_date;
+    }
+
+    /**** END - FUNCTIONS FOR TESTING AND DEBUGGING ****/
 }
