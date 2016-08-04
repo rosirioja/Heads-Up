@@ -347,7 +347,7 @@ class AlertController extends BaseController
             if (! $alert = $this->alert->update($id, $data)) {
                 throw new Exception("Error Processing Request: Cannot update alert");
             }
-            
+
             // Validate New Cron
             $this->_validateCron($this->alert->get($id));
 
@@ -367,9 +367,49 @@ class AlertController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy($id, Request $request)
     {
-        //
+        try {
+            // Validate the request
+            $validator = Validator::make($request->all(), [
+                'user_id'           => 'required|numeric'
+            ]);
+
+            if ($validator->fails()) {
+                throw new Exception(json_to_string($validator->messages()->toArray()));
+            }
+
+            $user_id = $request->input('user_id');
+
+            // VALIDATION - START
+
+            // check if user id exists and active
+            if (! $this->user->exists(['id' => $user_id, 'active' => 1])) {
+                throw new Exception("Error Processing Request: Invalid User");
+            }
+
+            // check if alert id exists and active
+            if (! $this->alert->exists(['id' => $id, 'user_id' => $user_id])) {
+                throw new Exception("Error Processing Request: Invalid Alert");
+            }
+
+            // VALIDATION - END
+
+            if (! $this->alert->delete($id)) {
+                throw new Exception("Error Processing Request: Cannot update alert");
+            }
+
+            // Validate New Cron
+            $this->_validateCron();
+
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage()
+            ]);
+        }
+
+        return response()->json(['success' => true]);
     }
 
     /**** START - FUNCTIONS FOR TESTING AND DEBUGGING ****/
